@@ -1,0 +1,132 @@
+
+### Union
+
+SELECT *
+FROM economies2010
+UNION
+SELECT *
+FROM economies2015
+ORDER BY code, year;
+
+### Union(2)
+
+SELECT country_code
+FROM cities
+UNION
+SELECT code
+FROM currencies
+ORDER BY country_code;
+
+### Union All
+
+SELECT code, year
+FROM economies
+UNION ALL
+SELECT country_code, year
+FROM populations
+ORDER BY code, year;
+
+### Intersect
+
+SELECT code, year
+FROM economies
+INTERSECT
+SELECT country_code, year
+FROM populations
+ORDER BY code, year;
+
+### Intersect (2)
+
+SELECT co.name
+FROM countries AS co
+INTERSECT
+SELECT ci.name
+FROM cities AS ci;
+
+### Except
+
+SELECT city.name
+FROM cities AS city
+EXCEPT
+SELECT country.capital
+FROM countries AS country
+ORDER BY name;
+### Except (2)
+SELECT country.capital
+FROM countries AS country
+EXCEPT
+SELECT city.name
+FROM cities AS city
+ORDER BY capital;
+
+### Semi-join
+
+1
+SELECT country.code
+FROM countries AS country
+WHERE country.region = 'Middle East';
+2
+SELECT DISTINCT lang.name
+FROM languages AS lang
+ORDER BY lang.name;
+3
+SELECT DISTINCT name
+FROM languages
+WHERE code IN
+  (SELECT code
+   FROM countries
+   WHERE region = 'Middle East')
+ORDER BY name;
+
+### Diagnosing problems using anti-join
+
+1
+SELECT count(name)
+  -- From countries
+  FROM countries
+-- Where continent is Oceania
+WHERE continent = 'Oceania';
+2
+-- 5. Select fields (with aliases)
+SELECT c1.code, c1.name, c2.basic_unit as currency
+  -- 1. From countries (alias as c1)
+  FROM countries as c1
+    -- 2. Join with currencies (alias as c2)
+    INNER JOIN currencies as c2
+    -- 3. Match on code
+    ON c1.code = c2.code
+-- 4. Where continent is Oceania
+WHERE continent = 'Oceania';
+3
+SELECT code, name
+
+  FROM countries
+  WHERE continent = 'Oceania'
+    
+    AND code NOT IN
+   
+    (SELECT code
+     FROM currencies);
+     
+### Set theory challenge
+
+-- Select the city name
+SELECT name
+  -- Alias the table where city name resides
+  FROM cities AS c1
+  -- Choose only records matching the result of multiple set theory clauses
+  WHERE country_code IN
+(
+    -- Select appropriate field from economies AS e
+    SELECT e.code
+    FROM economies AS e
+    -- Get all additional (unique) values of the field from currencies AS c2   
+    UNION
+    SELECT c2.code
+    FROM currencies AS c2
+    -- Exclude those appearing in populations AS p  
+    EXCEPT
+    SELECT p.country_code
+    FROM populations AS p
+);
+
